@@ -6,7 +6,7 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 app.listen(port, () => {
-    console.log(`Listening on Port ${process.env.PORT}`);
+    console.log(`Listening on Port: ${process.env.PORT}`);
 });
 
 const { IgApiClient } = require("instagram-private-api");
