@@ -44,7 +44,7 @@ const postToInsta = async () => {
     });
 };
 
-const cronInsta = new CronJob("*/15 * * * *", async () => {
+const cronInsta = new CronJob("*/5 * * * *", async () => {
     postToInsta();
     console.log("POSTED SUCCESSFULLY");
 });
