@@ -23,6 +23,14 @@ const postToInstagram = async () => {
             encoding: null,
         });
 
+        // Log image properties for troubleshooting
+        console.log("Image Buffer Properties:", imageBuffer.length, imageBuffer.type);
+
+        if (imageBuffer.length === 0) {
+            console.error("Error: Empty image buffer received.");
+            return;
+        }
+
         const postResponse = await ig.publish.photo({
             file: imageBuffer,
             caption: memeCaption,
@@ -34,8 +42,8 @@ const postToInstagram = async () => {
     }
 };
 
-// Schedule the postToInstagram function to run every 2 minutes
-const cronJob = new CronJob("*/2 * * * *", () => {
+// Schedule the postToInstagram function to run every 1 minute
+const cronJob = new CronJob("*/1 * * * *", () => {
     postToInstagram();
 });
 
