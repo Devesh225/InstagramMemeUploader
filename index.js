@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { IgApiClient } = require("instagram-private-api");
 const request = require("request-promise");
+const { CronJob } = require("cron");
 
 const postToInstagram = async () => {
     try {
@@ -33,4 +34,10 @@ const postToInstagram = async () => {
     }
 };
 
-postToInstagram();
+// Schedule the postToInstagram function to run every 2 minutes
+const cronJob = new CronJob("*/2 * * * *", () => {
+    postToInstagram();
+});
+
+// Start the cron job
+cronJob.start();
