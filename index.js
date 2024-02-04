@@ -1,52 +1,36 @@
 require("dotenv").config();
-const request = require("request");
-
-const express = require("express");
-const app = express();
-const port = process.env.PORT || 4000;
-
-app.listen(port, () => {
-    console.log(`Listening on Port: ${process.env.PORT}`);
-});
-
 const { IgApiClient } = require("instagram-private-api");
-const { get } = require("request-promise");
-const CronJob = require("cron").CronJob;
+const request = require("request-promise");
 
-const postToInsta = async () => {
-    const ig = new IgApiClient();
-    ig.state.generateDevice(process.env.IG_USERNAME);
-    await ig.account.login(process.env.IG_USERNAME, process.env.IG_PASSWORD);
+const postToInstagram = async () => {
+    try {
+        const ig = new IgApiClient();
+        ig.state.generateDevice(process.env.IG_USERNAME);
 
-    const options = {
-        url: "https://meme-api.com/gimme",
-        method: "GET",
-        headers: {
-            Accept: "application/json",
-            "Accept-Charset": "utf-8",
-            "User-Agent": "my-reddit-client",
-        },
-    };
+        await ig.account.login(process.env.IG_USERNAME, process.env.IG_PASSWORD);
 
-    request(options, async function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            let json = JSON.parse(body);
-            const imageBuffer = await get({
-                uri: json.url,
-                encoding: null,
-            });
+        const memeApiResponse = await request({
+            uri: "https://meme-api.com/gimme",
+            json: true,
+        });
 
-            await ig.publish.photo({
-                file: imageBuffer,
-                caption: json.title,
-            });
-        }
-    });
+        const memeUrl = memeApiResponse.url;
+        const memeCaption = memeApiResponse.title;
+
+        const imageBuffer = await request({
+            uri: memeUrl,
+            encoding: null,
+        });
+
+        const postResponse = await ig.publish.photo({
+            file: imageBuffer,
+            caption: memeCaption,
+        });
+
+        console.log("Posted to Instagram successfully:", postResponse);
+    } catch (error) {
+        console.error("Error posting to Instagram:", error);
+    }
 };
 
-const cronInsta = new CronJob("*/5 * * * *", async () => {
-    postToInsta();
-    console.log("POSTED SUCCESSFULLY");
-});
-
-cronInsta.start();
+postToInstagram();
